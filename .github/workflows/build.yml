@@ -12,51 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Compilar con Buildozer Action
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.10'
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Instalar Android SDK completo
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'tools platform-tools build-tools;33.0.2 platforms;android-33'
-
-      - name: Aceptar todas las licencias
-        run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "build-tools;33.0.2" "platforms;android-33" "platform-tools"
-          yes | sdkmanager --licenses || true
-
-      - name: Instalar dependencias Linux
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y build-essential git zip unzip python3-dev libffi-dev libssl-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev autoconf libtool pkg-config
-
-      - name: Instalar Buildozer
-        run: |
-          pip install --upgrade pip
-          pip install buildozer==1.5.0
-          pip install cython==0.29.37
-
-      - name: Configurar SDK para buildozer
-        run: |
-          mkdir -p $HOME/.buildozer/android/platform/
-          ln -sf $ANDROID_SDK_ROOT $HOME/.buildozer/android/platform/android-sdk
-
-      - name: Compilar APK
-        run: buildozer android debug
-        env:
-          BUILDOZER_WARN_ON_ROOT: '0'
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          command: buildozer android debug
+          buildozer_version: stable
 
       - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: ForexSignalsPRO
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
           retention-days: 30
