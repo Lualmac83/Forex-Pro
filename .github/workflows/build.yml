@@ -57,7 +57,7 @@ jobs:
         BUILDOZER_WARN_ON_ROOT: '0'
 
     - name: Subir APK como artefacto
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ForexSignalsPRO-APK
         path: bin/*.apk
