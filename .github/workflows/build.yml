@@ -1,0 +1,64 @@
+name: Build Forex APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout codigo
+      uses: actions/checkout@v3
+
+    - name: Instalar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Instalar dependencias del sistema
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y \
+          python3-pip build-essential git \
+          python3-dev ffmpeg \
+          libsdl2-dev libsdl2-image-dev \
+          libsdl2-mixer-dev libsdl2-ttf-dev \
+          libportmidi-dev libswscale-dev \
+          libavformat-dev libavcodec-dev \
+          zlib1g-dev libgstreamer1.0-dev \
+          gstreamer1.0-plugins-base \
+          gstreamer1.0-plugins-good \
+          libltdl-dev libffi-dev libssl-dev \
+          autoconf libtool pkg-config \
+          zip unzip openjdk-17-jdk
+
+    - name: Instalar Buildozer y Cython
+      run: |
+        pip install buildozer==1.5.0
+        pip install cython==0.29.37
+
+    - name: Aceptar licencias Android SDK
+      run: |
+        mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" >> $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+        echo "601085b94cd77f0b54ff86406957099ebe79c4d" > $HOME/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
+        echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > $HOME/.buildozer/android/platform/android-sdk/licenses/google-gdk-license
+
+    - name: Compilar APK
+      run: |
+        buildozer android debug
+      env:
+        BUILDOZER_WARN_ON_ROOT: '0'
+
+    - name: Subir APK como artefacto
+      uses: actions/upload-artifact@v3
+      with:
+        name: ForexSignalsPRO-APK
+        path: bin/*.apk
+        retention-days: 30
