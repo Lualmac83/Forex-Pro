@@ -14,7 +14,7 @@
 # ══════════════════════════════
 #  ⚙️  CONFIGURACIÓN — EDITA AQUÍ
 # ══════════════════════════════
-API_KEY   = "TU_API_KEY_AQUI"    # ← pega tu key de twelvedata.com
+API_KEY   = "32d2f8051f754370817beca443b02788"    # ← pega tu key de twelvedata.com
 TIMEFRAME = "15min"              # 1min 5min 15min 30min 1h 4h 1day
 CANDLES   = 60                   # velas a descargar por par
 # ══════════════════════════════
