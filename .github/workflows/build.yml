@@ -7,21 +7,36 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compilar con Buildozer Action
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
+      - uses: actions/setup-python@v5
         with:
-          command: buildozer android debug
-          buildozer_version: stable
+          python-version: '3.9'
+
+      - name: Instalar todo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python3-pip build-essential git zip unzip \
+            openjdk-11-jdk autoconf libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev \
+            libffi-dev libssl-dev libltdl-dev
+          pip3 install --upgrade pip
+          pip3 install buildozer
+          pip3 install cython==0.29.33
+
+      - name: Compilar APK
+        run: |
+          yes | buildozer android debug 2>&1
+        env:
+          BUILDOZER_WARN_ON_ROOT: '0'
 
       - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: ForexSignalsPRO
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk
           retention-days: 30
